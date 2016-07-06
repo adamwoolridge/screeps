@@ -24,6 +24,8 @@ module.exports.loop = function ()
             roleBuilder.run(creep);
         else if (creep.memory.role == 'repairer')
             rolerRepairer.run(creep);
+
+        //creep.say(creep.memory.role);
     }
 
     var minHarvesters = 6;

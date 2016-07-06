@@ -17,10 +17,23 @@ module.exports = {
         }
         else
         {
-            var source = creep.pos.findClosestByPath(FIND_SOURCES);
+            // Try and take energy from an extension first
+            var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, { filter: (s) => (s.structureType==STRUCTURE_EXTENSION ) && s.energy > 0});
 
-            if (creep.harvest(source) == ERR_NOT_IN_RANGE)
-                creep.moveTo(source);
+            if (structure != undefined)
+            {
+                var min = Math.min(structure.energy, creep.carryCapacity-creep.carry.energy);
+
+                if (structure.transferEnergy(creep,min ) == ERR_NOT_IN_RANGE)
+                    creep.moveTo(structure);
+            }
+            else
+            {
+                var source = creep.pos.findClosestByPath(FIND_SOURCES);
+
+                if (creep.harvest(source) == ERR_NOT_IN_RANGE)
+                    creep.moveTo(source);
+            }
         }
     }
 };
