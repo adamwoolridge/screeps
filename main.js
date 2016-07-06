@@ -40,11 +40,11 @@ module.exports.loop = function ()
 
     var name = undefined;
 
-    console.log('Harvesters: ' + numOfHarvesters);
-    console.log('Upgraders: ' + numOfUpgraders);
-    console.log('Repairers: ' + numOfRepairers);
-    console.log('Builders: ' + numOfBuilders);
-    console.log('-------');
+    // console.log('Harvesters: ' + numOfHarvesters);
+    // console.log('Upgraders: ' + numOfUpgraders);
+    // console.log('Repairers: ' + numOfRepairers);
+    // console.log('Builders: ' + numOfBuilders);
+    // console.log('-------');
 
     if (numOfHarvesters < minHarvesters)
     {

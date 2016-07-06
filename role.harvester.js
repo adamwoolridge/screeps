@@ -12,8 +12,13 @@ module.exports = {
         
         if (creep.memory.working == true)
         {
-            if (creep.transfer(Game.spawns.Spawn1, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
-                creep.moveTo(Game.spawns.Spawn1);
+            var structure = creep.pos.findClosestByPath(FIND_STRUCTURES, { filter: (s) => (s.structureType==STRUCTURE_EXTENSION || s.structureType==STRUCTURE_SPAWN) && s.energy < s.energyCapacity});
+
+            if (structure != undefined)
+            {
+                if (creep.transfer(structure, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE)
+                    creep.moveTo(structure);
+            }
         }
         else
         {
