@@ -7,6 +7,7 @@
  * mod.thing == 'a thing'; // true
  */
 
+
 module.exports = {
     clearMemory:  function()
     {
@@ -15,6 +16,15 @@ module.exports = {
         {
             if (Game.creeps[name] == undefined)
                 delete Memory.creeps[name];
+        }
+    },
+
+    suicideAllCreeps: function()
+    {
+        for (let name in Game.creeps)
+        {
+            var creep = Game.creeps[name];
+            creep.suicide();
         }
     }
 };

@@ -1,3 +1,4 @@
+// Role definitions
 var roles = [{
     name: 'harvester',
     templates: [{
@@ -22,10 +23,38 @@ var roles = [{
     }]
 }]
 
+
+function whatToSpawn(spawner)
+{
+    var cl = spawner.room.controller.level;
+
+    for (let i=0; i<roles.length; i++)
+    {
+        var role = roles[i];
+
+        // Get the spawn template for this role, based on the current control level
+        var template = role.templates[Math.min(role.templates.length, cl)-1];
+
+        // How many of this role do we already have?
+        var roleCreepCount = _.sum(Game.creeps, (c) => c.memory.role == role.name);
+
+        // Do we want more of this role for the current CL template?
+        if (roleCreepCount < template.min)
+        {
+            //console.log("Next to spawn: " + role.name);
+
+            // if we can spawn, spawn and return
+            return;
+        }
+    }
+}
+
 module.exports = {
 
     run: function(spawner)
     {
+        whatToSpawn(spawner);
+
         var minHarvesters = 6;
         var numOfHarvesters = _.sum(Game.creeps, (c) => c.memory.role == 'harvester');
 
