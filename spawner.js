@@ -1,3 +1,27 @@
+var roles = [{
+    name: 'harvester',
+    templates: [{
+        priority: 0,
+        min: 6,
+        body: [WORK, WORK, CARRY, MOVE]
+    }, {
+        priority: 0,
+        min: 4,
+        body: [WORK, WORK, WORK, CARRY, CARRY, MOVE]
+    }]
+}, {
+    name: 'upgrader',
+    templates: [{
+        priority: 1,
+        min: 3,
+        body: [WORK, CARRY, MOVE, MOVE]
+    }, {
+        priority: 1,
+        min: 2,
+        body: [WORK, WORK, WORK, CARRY, CARRY, MOVE]
+    }]
+}]
+
 module.exports = {
 
     run: function(spawner)

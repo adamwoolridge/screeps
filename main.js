@@ -10,7 +10,7 @@ module.exports.loop = function ()
     utils.clearMemory();
     
     spawner.run(Game.spawns.Spawn1);
-
+    
     for (let name in Game.creeps)
     {
         var creep = Game.creeps[name];
