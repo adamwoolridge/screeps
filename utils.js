@@ -26,5 +26,14 @@ module.exports = {
             var creep = Game.creeps[name];
             creep.suicide();
         }
+    },
+
+    pingAllCreeps: function()
+    {
+        for (let name in Game.creeps)
+        {
+            var creep = Game.creeps[name];
+            creep.say(creep.memory.role);
+        }
     }
 };

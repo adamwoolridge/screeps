@@ -48,7 +48,6 @@ var roles = [{
 function spawn(spawner)
 {
     var cl = spawner.room.controller.level;
-    var energy = spawner.room.energyAvailable;
     var roleToSpawn = undefined;
     var roleTemplateToSpawn = undefined;
 
@@ -57,7 +56,7 @@ function spawn(spawner)
     if (harvesterCount == 0)
     {
         roleToSpawn = roles[0];
-        roleTemplateToSpawn = bestAffordableRoleTemplate(spawner, roleToSpawn, energy);
+        roleTemplateToSpawn = bestRoleTemplate(spawner, roleToSpawn, false);
     }
 
     if (roleToSpawn == undefined || roleTemplateToSpawn == undefined)
@@ -79,7 +78,7 @@ function spawn(spawner)
             if (roleCreepCount < template.min)
             {
                 roleToSpawn = role;
-                roleTemplateToSpawn = bestAffordableRoleTemplate(spawner, roleToSpawn, energy)
+                roleTemplateToSpawn = bestRoleTemplate(spawner, roleToSpawn, true)
                 break;
             }
         }
@@ -95,9 +94,24 @@ function spawn(spawner)
     }
 }
 
-// Figure out the best, most expensive template version of a role we can currently afford
-function bestAffordableRoleTemplate(spawner, role, energy)
+// TODO: Add check for maximum possible energy, if we don't have enough for the CL, check lower ones
+function roleTemplateForCL(spawner, role)
 {
+    var cl = spawner.room.controller.level;
+    return role.templates[Math.min(role.templates.length, cl)-1];
+}
+
+// Figure out the best, most expensive template version of a role we could afford
+function bestRoleTemplate(spawner, role, includeExtensions)
+{
+    var energy = 0;
+
+    if (includeExtensions)
+        energy = spawner.room.energyCapacityAvailable;
+    else
+        energy = spawner.energyCapacityAvailable;
+
+
     var levelsForThisRole = Math.min(role.templates.length,spawner.room.controller.level);
 
     for (let l = levelsForThisRole-1; l >= 0; l--)
