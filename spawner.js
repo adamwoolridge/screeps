@@ -21,79 +21,107 @@ var roles = [{
         min: 2,
         body: [WORK, WORK, WORK, CARRY, CARRY, MOVE]
     }]
+}, {
+    name: 'repairer',
+    templates: [{
+        priority: 1,
+        min: 2,
+        body: [WORK, WORK, CARRY, MOVE]
+    }, {
+        priority: 1,
+        min: 2,
+        body: [WORK, WORK, WORK, CARRY, CARRY, MOVE]
+    }]
+}, {
+    name: 'builder',
+    templates: [{
+        priority: 1,
+        min: 5,
+        body: [WORK, WORK, CARRY, MOVE]
+    }, {
+        priority: 1,
+        min: 3,
+        body: [WORK, WORK, WORK, CARRY, CARRY, MOVE]
+    }]
 }]
 
-
-function whatToSpawn(spawner)
+function spawn(spawner)
 {
     var cl = spawner.room.controller.level;
+    var energy = spawner.room.energyAvailable;
+    var roleToSpawn = undefined;
+    var roleTemplateToSpawn = undefined;
 
-    for (let i=0; i<roles.length; i++)
+    // Emergency check to make sure we always build a harvester if we have none
+    var harvesterCount = _.sum(Game.creeps, (c) => c.memory.role == 'harvester');
+    if (harvesterCount == 0)
     {
-        var role = roles[i];
+        roleToSpawn = roles[0];
+        roleTemplateToSpawn = bestAffordableRoleTemplate(spawner, roleToSpawn, energy);
+    }
 
-        // Get the spawn template for this role, based on the current control level
-        var template = role.templates[Math.min(role.templates.length, cl)-1];
+    if (roleToSpawn == undefined || roleTemplateToSpawn == undefined)
+    {
+        roleToSpawn = undefined;
+        roleTemplateToSpawn = undefined;
 
-        // How many of this role do we already have?
-        var roleCreepCount = _.sum(Game.creeps, (c) => c.memory.role == role.name);
-
-        // Do we want more of this role for the current CL template?
-        if (roleCreepCount < template.min)
+        for (let i=0; i<roles.length; i++)
         {
-            //console.log("Next to spawn: " + role.name);
+            var role = roles[i];
 
-            // if we can spawn, spawn and return
-            return;
+            // Get the spawn template for this role, based on the current control level
+            var template = role.templates[Math.min(role.templates.length, cl)-1];
+
+            // How many of this role do we already have?
+            var roleCreepCount = _.sum(Game.creeps, (c) => c.memory.role == role.name);
+
+            // Do we want more of this role for the current CL template?
+            if (roleCreepCount < template.min)
+            {
+                roleToSpawn = role;
+                roleTemplateToSpawn = bestAffordableRoleTemplate(spawner, roleToSpawn, energy)
+                break;
+            }
         }
     }
+
+    if (roleToSpawn != undefined && roleTemplateToSpawn != undefined)
+    {
+        var name = undefined;
+
+        name = spawner.createCreep(roleTemplateToSpawn.body, undefined, { role: roleToSpawn.name, working: false} );
+        if (_.isString(name))
+            console.log('Spawned: ' + Memory.creeps[name].role + ' called ' + name + 'with the body: ' + roleTemplateToSpawn.body);
+    }
+}
+
+// Figure out the best, most expensive template version of a role we can currently afford
+function bestAffordableRoleTemplate(spawner, role, energy)
+{
+    var levelsForThisRole = Math.min(role.templates.length,spawner.room.controller.level);
+
+    for (let l = levelsForThisRole-1; l >= 0; l--)
+    {
+        var cost  = 0;
+
+        // Sum up the cost of all the parts for this template level
+        for (let p=0; p<role.templates[l].body.length; p++)
+        {
+            var bodyPart = role.templates[l].body[p];
+            cost += BODYPART_COST[bodyPart];
+        }
+
+        if (cost <= energy)
+            return role.templates[l];
+    }
+
+    return undefined;
 }
 
 module.exports = {
 
     run: function(spawner)
     {
-        whatToSpawn(spawner);
-
-        var minHarvesters = 6;
-        var numOfHarvesters = _.sum(Game.creeps, (c) => c.memory.role == 'harvester');
-
-        var minUpgraders = 3;
-        var numOfUpgraders = _.sum(Game.creeps, (c) => c.memory.role == 'upgrader');
-
-        var minRepairers = 2;
-        var numOfRepairers = _.sum(Game.creeps, (c) => c.memory.role == 'repairer');
-
-        var minBuilders = 5;
-        var numOfBuilders = _.sum(Game.creeps, (c) => c.memory.role == 'builder');
-
-        var name = undefined;
-
-        // console.log('Harvesters: ' + numOfHarvesters);
-        // console.log('Upgraders: ' + numOfUpgraders);
-        // console.log('Repairers: ' + numOfRepairers);
-        // console.log('Builders: ' + numOfBuilders);
-        // console.log('-------');
-
-        if (numOfHarvesters < minHarvesters)
-        {
-            name = spawner.createCreep([WORK, WORK, CARRY, MOVE], undefined, { role: 'harvester', working: false} );
-        }
-        else if (numOfUpgraders < minUpgraders)
-        {
-            name = spawner.createCreep([WORK, CARRY, MOVE, MOVE], undefined, { role: 'upgrader', working: false} );
-        }
-        else if (numOfRepairers < minRepairers)
-        {
-            name = spawner.createCreep([WORK, WORK, CARRY, MOVE], undefined, { role: 'repairer', working: false} );
-        }
-        else if (numOfBuilders < minBuilders)
-        {
-            name = spawner.createCreep([WORK, WORK, CARRY, MOVE], undefined, { role: 'builder', working: false} );
-        }
-
-
-        if (_.isString(name))
-            console.log('Spawned new ' + Memory.creeps[name].role + ' called ' + name);
+        spawn(spawner);
     }
 };
