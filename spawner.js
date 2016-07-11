@@ -90,7 +90,7 @@ function spawn(spawner)
 
         name = spawner.createCreep(roleTemplateToSpawn.body, undefined, { role: roleToSpawn.name, working: false} );
         if (_.isString(name))
-            console.log('Spawned: ' + Memory.creeps[name].role + ' called ' + name + 'with the body: ' + roleTemplateToSpawn.body);
+            console.log('Spawned: ' + Memory.creeps[name].role + ' called ' + name + ' with the body: ' + roleTemplateToSpawn.body);
     }
 }
 
